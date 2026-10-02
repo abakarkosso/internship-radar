@@ -1,0 +1,91 @@
+{
+  "postings" : 137,
+  "heldOut" : 39,
+  "rules" : {
+    "coop_required" : {
+      "holdout" : {
+        "precision" : 1.0,
+        "recall" : 0.778,
+        "truePositives" : 7,
+        "falsePositives" : 0,
+        "falseNegatives" : 2
+      },
+      "all" : {
+        "precision" : 1.0,
+        "recall" : 0.875,
+        "truePositives" : 14,
+        "falsePositives" : 0,
+        "falseNegatives" : 2
+      },
+      "use" : "hides"
+    },
+    "graduate_only" : {
+      "holdout" : {
+        "precision" : 1.0,
+        "recall" : 1.0,
+        "truePositives" : 0,
+        "falsePositives" : 0,
+        "falseNegatives" : 0
+      },
+      "all" : {
+        "precision" : 1.0,
+        "recall" : 1.0,
+        "truePositives" : 6,
+        "falsePositives" : 0,
+        "falseNegatives" : 0
+      },
+      "use" : "warns"
+    },
+    "must_return" : {
+      "holdout" : {
+        "precision" : 1.0,
+        "recall" : 0.5,
+        "truePositives" : 1,
+        "falsePositives" : 0,
+        "falseNegatives" : 1
+      },
+      "all" : {
+        "precision" : 1.0,
+        "recall" : 0.9,
+        "truePositives" : 9,
+        "falsePositives" : 0,
+        "falseNegatives" : 1
+      },
+      "use" : "warns"
+    },
+    "grad_window" : {
+      "holdout" : {
+        "precision" : 0.857,
+        "recall" : 1.0,
+        "truePositives" : 6,
+        "falsePositives" : 1,
+        "falseNegatives" : 0
+      },
+      "all" : {
+        "precision" : 0.95,
+        "recall" : 1.0,
+        "truePositives" : 19,
+        "falsePositives" : 1,
+        "falseNegatives" : 0
+      },
+      "use" : "warns"
+    },
+    "work_auth" : {
+      "holdout" : {
+        "precision" : 1.0,
+        "recall" : 1.0,
+        "truePositives" : 4,
+        "falsePositives" : 0,
+        "falseNegatives" : 0
+      },
+      "all" : {
+        "precision" : 1.0,
+        "recall" : 1.0,
+        "truePositives" : 11,
+        "falsePositives" : 0,
+        "falseNegatives" : 0
+      },
+      "use" : "hides"
+    }
+  }
+}
