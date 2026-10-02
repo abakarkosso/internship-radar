@@ -1,0 +1,1 @@
+ALTER TABLE posting ADD COLUMN graduate_degree_required BOOLEAN NOT NULL DEFAULT FALSE;

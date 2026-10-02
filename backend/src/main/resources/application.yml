@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: internship-radar
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/radar}
+    username: ${DATABASE_USER:radar}
+    password: ${DATABASE_PASSWORD:radar}
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Flyway owns the schema
+    open-in-view: false
+  mvc:
+    problemdetails:
+      enabled: true        # RFC 9457 error bodies, no stack traces
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true   # index.html and other unhashed files revalidate; /assets is overridden in StaticCacheConfig
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/css,application/javascript
+  error:
+    include-stacktrace: never
+    include-message: never
+
+radar:
+  ingest:
+    interval: PT15M
+  sources:
+    # Public job-board APIs with Canadian student roles. Add a board here to start tracking it.
+    greenhouse:
+      - { board: stripe, company: Stripe }
+      - { board: robinhood, company: Robinhood }
+      - { board: d2l, company: D2L }
+      - { board: geotab, company: Geotab }
+      - { board: hootsuite, company: Hootsuite }
+      - { board: faire, company: Faire }
+      - { board: databricks, company: Databricks }
+      - { board: coinbase, company: Coinbase }
+    ashby:
+      - { board: super.com, company: Super }
+      - { board: cohere, company: Cohere }
+      - { board: ramp, company: Ramp }
+      - { board: 1password, company: 1Password }
+      - { board: pinecone, company: Pinecone }
+      - { board: perplexity, company: Perplexity }
+      - { board: georgian, company: Georgian }
+    lever:
+      - { board: wattpad, company: Wattpad }
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    # No defaults in production: a missing variable stops startup instead of using dev credentials.
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+server:
+  # Tomcat's RemoteIpValve: honours X-Forwarded-For only from private-network proxies and takes the
+  # right-most untrusted hop, so a client can't spoof its address to dodge the rate limit.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:native}
+logging:
+  structured:
+    format:
+      console: ecs

@@ -1,0 +1,3 @@
+radar:
+  ingest:
+    enabled: false
