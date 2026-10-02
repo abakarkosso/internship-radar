@@ -11,6 +11,9 @@ export interface PostingSummary {
   coopRequirement: CoopRequirement
   mustReturnToSchool: boolean
   graduateDegreeRequired: boolean
+  gradEarliest: string | null
+  gradLatest: string | null
+  workAuthorization: 'CITIZEN_OR_PR' | 'NO_SPONSORSHIP' | 'UNSPECIFIED'
   termMonths: number[]
   skills: string[]
   firstSeenAt: string
@@ -27,8 +30,6 @@ export interface FeedPage {
 export interface Filters {
   q: string
   category: RoleCategory | ''
-  excludeCoopRequired: boolean
-  excludeGraduateOnly: boolean
   page: number
 }
 
@@ -43,13 +44,12 @@ export const CATEGORY_LABELS: Record<RoleCategory, string> = {
 }
 
 /** Only send the filters that are set, so URLs stay short and shareable. */
-export function buildQuery(f: Filters): string {
+export function buildQuery(f: Filters, extra: Record<string, string> = {}): string {
   const params = new URLSearchParams()
   if (f.q.trim()) params.set('q', f.q.trim())
   if (f.category) params.set('category', f.category)
-  if (f.excludeCoopRequired) params.set('excludeCoopRequired', 'true')
-  if (f.excludeGraduateOnly) params.set('excludeGraduateOnly', 'true')
   if (f.page > 0) params.set('page', String(f.page))
+  for (const [k, v] of Object.entries(extra)) params.set(k, v)
   return params.toString()
 }
 
@@ -84,8 +84,24 @@ export function eligibilityLines(p: PostingSummary): string[] {
   if (p.coopRequirement === 'REQUIRED') lines.push('Requires a school co-op program.')
   if (p.coopRequirement === 'NOT_REQUIRED') lines.push('Open to students outside co-op.')
   if (p.mustReturnToSchool) lines.push('You must return to school after the term.')
+  if (p.workAuthorization === 'CITIZEN_OR_PR') lines.push('Citizens and permanent residents only.')
+  if (p.workAuthorization === 'NO_SPONSORSHIP') lines.push('No visa sponsorship.')
   if (p.termMonths.length > 0) lines.push(`${p.termMonths.join(' or ')} month term.`)
   return lines
+}
+
+export interface RuleScore {
+  precision: number
+  recall: number
+  truePositives: number
+  falsePositives: number
+  falseNegatives: number
+}
+
+export interface Accuracy {
+  postings: number
+  heldOut: number
+  rules: Record<string, { holdout: RuleScore; all: RuleScore; use: 'hides' | 'warns' }>
 }
 
 export interface Stats {
@@ -107,14 +123,13 @@ export function filtersFromUrl(search: string): Filters {
   return {
     q: params.get('q') ?? '',
     category: (category in CATEGORY_LABELS ? category : '') as RoleCategory | '',
-    excludeCoopRequired: params.get('excludeCoopRequired') === 'true',
-    excludeGraduateOnly: params.get('excludeGraduateOnly') === 'true',
     page: Math.min(10_000, Math.max(0, Math.floor(Number(params.get('page')) || 0))),
   }
 }
 
-export async function fetchPostings(f: Filters, signal?: AbortSignal): Promise<FeedPage> {
-  const res = await fetch(`/api/postings?${buildQuery(f)}`, { signal })
+export async function fetchPostings(f: Filters, extra: Record<string, string>, signal?: AbortSignal, size?: number): Promise<FeedPage> {
+  const query = buildQuery(f, size ? { ...extra, size: String(size) } : extra)
+  const res = await fetch(`/api/postings?${query}`, { signal })
   if (!res.ok) throw new Error(`API returned ${res.status}`)
   return res.json()
 }

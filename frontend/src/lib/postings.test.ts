@@ -5,12 +5,12 @@ import {
 
 describe('buildQuery', () => {
   it('omits filters that are not set', () => {
-    expect(buildQuery({ q: '  ', category: '', excludeCoopRequired: false, excludeGraduateOnly: false, page: 0 })).toBe('')
+    expect(buildQuery({ q: '  ', category: '', page: 0 })).toBe('')
   })
 
   it('includes every filter that is set', () => {
-    expect(buildQuery({ q: ' stripe ', category: 'SOFTWARE', excludeCoopRequired: true, excludeGraduateOnly: true, page: 2 }))
-      .toBe('q=stripe&category=SOFTWARE&excludeCoopRequired=true&excludeGraduateOnly=true&page=2')
+    expect(buildQuery({ q: ' stripe ', category: 'SOFTWARE', page: 2 }, { excludeCoopRequired: 'true' }))
+      .toBe('q=stripe&category=SOFTWARE&page=2&excludeCoopRequired=true')
   })
 })
 
@@ -42,7 +42,7 @@ describe('heat', () => {
 describe('eligibilityLines', () => {
   const base: PostingSummary = {
     id: 1, company: 'Acme', title: 'Intern', location: 'Toronto, ON', url: 'https://x.test',
-    category: 'SOFTWARE', coopRequirement: 'UNSPECIFIED', mustReturnToSchool: false, graduateDegreeRequired: false,
+    category: 'SOFTWARE', coopRequirement: 'UNSPECIFIED', mustReturnToSchool: false, graduateDegreeRequired: false, gradEarliest: null, gradLatest: null, workAuthorization: 'UNSPECIFIED',
     termMonths: [], skills: [], firstSeenAt: '2026-10-02T00:00:00Z',
   }
 
@@ -53,6 +53,10 @@ describe('eligibilityLines', () => {
   it('leads with a graduate-only rule', () => {
     expect(eligibilityLines({ ...base, graduateDegreeRequired: true, coopRequirement: 'NOT_REQUIRED' })[0])
       .toBe("For Master's or PhD students.")
+  })
+
+  it('states work authorization limits', () => {
+    expect(eligibilityLines({ ...base, workAuthorization: 'NO_SPONSORSHIP' })).toEqual(['No visa sponsorship.'])
   })
 
   it('puts the co-op rule first', () => {
@@ -72,7 +76,7 @@ describe('age', () => {
 
 describe('filtersFromUrl', () => {
   it('round-trips with buildQuery', () => {
-    const f = { q: 'stripe', category: 'DATA' as const, excludeCoopRequired: true, excludeGraduateOnly: true, page: 1 }
+    const f = { q: 'stripe', category: 'DATA' as const, page: 1 }
     expect(filtersFromUrl(buildQuery(f))).toEqual(f)
   })
 
@@ -80,6 +84,6 @@ describe('filtersFromUrl', () => {
     expect(filtersFromUrl('?page=1.7').page).toBe(1)
     expect(filtersFromUrl('?page=99999999').page).toBe(10_000)
     expect(filtersFromUrl('?category=<script>&page=-4')).toEqual(
-      { q: '', category: '', excludeCoopRequired: false, excludeGraduateOnly: false, page: 0 })
+      { q: '', category: '', page: 0 })
   })
 })
