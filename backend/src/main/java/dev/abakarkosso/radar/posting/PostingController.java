@@ -27,11 +27,12 @@ class PostingController {
                               @RequestParam(required = false) RoleCategory category,
                               @RequestParam(defaultValue = "false") boolean excludeCoopRequired,
                               @RequestParam(defaultValue = "false") boolean excludeGraduateOnly,
+                              @RequestParam(required = false) WorkStatus workStatus,
                               @RequestParam(defaultValue = "0") @Min(0) @Max(10_000) int page,
                               @RequestParam(defaultValue = "25") int size) {
         PageRequest pageable = PageRequest.of(page, Math.clamp(size, 1, MAX_PAGE_SIZE),
                 Sort.by(Sort.Direction.DESC, "firstSeenAt"));
-        return FeedPage.of(repository.findAll(PostingFilters.build(q, category, excludeCoopRequired, excludeGraduateOnly), pageable)
+        return FeedPage.of(repository.findAll(PostingFilters.build(q, category, excludeCoopRequired, excludeGraduateOnly, workStatus), pageable)
                 .map(PostingSummary::of));
     }
 

@@ -7,6 +7,8 @@ public record Eligibility(
         CoopRequirement coop,
         boolean mustReturnToSchool,
         boolean graduateDegreeRequired,
+        GradWindow gradWindow,
+        WorkAuthorization workAuthorization,
         List<Integer> termMonths,
         List<String> skills) {
 }

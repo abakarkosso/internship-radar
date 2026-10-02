@@ -11,6 +11,9 @@ import java.util.List;
 import dev.abakarkosso.radar.TestcontainersConfiguration;
 import dev.abakarkosso.radar.eligibility.CoopRequirement;
 import dev.abakarkosso.radar.eligibility.Eligibility;
+import dev.abakarkosso.radar.eligibility.GradWindow;
+import dev.abakarkosso.radar.eligibility.WorkAuthorization;
+import java.time.YearMonth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,27 @@ class PostingApiIT {
     }
 
     @Test
+    void exposesTheGraduationWindowForTheBrowserToCompare() throws Exception {
+        save("7", "Class of 2028 Intern", "Fits", CoopRequirement.UNSPECIFIED, false,
+                new GradWindow(YearMonth.of(2027, 12), YearMonth.of(2028, 8)), WorkAuthorization.UNSPECIFIED,
+                Instant.parse("2026-09-01T00:00:00Z"));
+        mvc.perform(get("/api/postings").param("q", "Class of 2028"))
+                .andExpect(jsonPath("$.items[0].gradEarliest").value("2027-12"))
+                .andExpect(jsonPath("$.items[0].gradLatest").value("2028-08"));
+    }
+
+    @Test
+    void workStatusFilterHidesOnlyRolesThatExcludeTheStudent() throws Exception {
+        Instant t = Instant.parse("2026-09-01T00:00:00Z");
+        save("5", "Citizens Only", "Gov", CoopRequirement.UNSPECIFIED, false, null, WorkAuthorization.CITIZEN_OR_PR, t);
+        save("6", "No Sponsorship", "Bank", CoopRequirement.UNSPECIFIED, false, null, WorkAuthorization.NO_SPONSORSHIP, t);
+
+        mvc.perform(get("/api/postings").param("workStatus", "CITIZEN_OR_PR")).andExpect(jsonPath("$.totalItems").value(4));
+        mvc.perform(get("/api/postings").param("workStatus", "WORK_PERMIT")).andExpect(jsonPath("$.totalItems").value(3));
+        mvc.perform(get("/api/postings").param("workStatus", "NEEDS_SPONSORSHIP")).andExpect(jsonPath("$.totalItems").value(2));
+    }
+
+    @Test
     void rejectsOversizedSearchWithProblemDetail() throws Exception {
         mvc.perform(get("/api/postings").param("q", "x".repeat(101)))
                 .andExpect(status().isBadRequest())
@@ -95,9 +119,14 @@ class PostingApiIT {
     }
 
     private void save(String id, String title, String company, CoopRequirement coop, Instant seen) {
+        save(id, title, company, coop, id.equals("1"), null, WorkAuthorization.UNSPECIFIED, seen);
+    }
+
+    private void save(String id, String title, String company, CoopRequirement coop, boolean graduateOnly,
+                      GradWindow window, WorkAuthorization auth, Instant seen) {
         Posting p = new Posting("test", id, seen);
         p.refresh(company, title, "Toronto, ON", "https://example.com/" + id, "description",
-                new Eligibility(coop, false, id.equals("1"), List.of(), List.of("SQL")), seen);
+                new Eligibility(coop, false, graduateOnly, window, auth, List.of(), List.of("SQL")), seen);
         repository.save(p);
     }
 }
