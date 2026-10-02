@@ -49,3 +49,31 @@ onto a CDN only if traffic justifies it.
 
 `lower(title) LIKE '%q%'` scans the open postings. At thousands of rows that is milliseconds.
 At hundreds of thousands, add a `pg_trgm` GIN index rather than a search engine.
+
+## A rule must earn the right to hide a posting
+
+Wrongly hiding a role a student could get is the worst failure this app can make, so eligibility
+rules are gated by measured accuracy, not by confidence in the regex. `EligibilityEvalTest` measures
+every rule on hand-labelled real postings (`backend/src/test/resources/eval/`). A rule may hide postings
+only with at least one held-out prediction and 90%+ held-out precision; otherwise it is shown on the
+posting and never hides it. On 2026-10-02 that meant co-op required and work authorization hide;
+graduate-only (no held-out examples yet) and graduation window (86%, 6 of 7) only show.
+
+The CI test also keeps `frontend/src/generated/accuracy.json` in step, so the accuracy page on the
+site can't drift from what the code does.
+
+## The held-out split is never used for tuning
+
+The labelled set is split 75/25 by a hash of each posting's id. Rules were fixed only from tuning-split
+mistakes. When a held-out mistake was found (a "Preferred" graduation date read as a requirement), the
+rule was left alone and the rule was downgraded to show-only instead, because tuning on held-out
+examples would make the published numbers meaningless. Label corrections are logged in
+`LABELLING.md` and were made from re-reading the text, never from looking at predictions.
+
+## The student profile stays in the browser
+
+Graduation date, co-op status, degree and work status live in `localStorage`. Only the derived filter
+values travel with each feed request, nothing is stored server-side, and the profile is kept out of the
+URL so a shared search link doesn't carry someone's situation. That keeps the app account-free: there
+is no personal data to protect, so no login, password storage or retention rules yet. Accounts arrive
+with the first feature that needs them (email alerts).
