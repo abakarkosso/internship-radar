@@ -31,3 +31,10 @@ run-on sentences at 230 characters). Labels were re-judged from the text alone, 
 bound and December when it is an upper bound (the wider window, since this rule only warns). Applied to every
 posting using the phrase, regardless of split: the 8 Robinhood postings with "Winter 2027 or Spring 2028" move
 from 2027-12 to 2027-04 as their earliest date.
+
+## Excerpts instead of full postings
+
+2026-10-02: each posting's `text` is now its title plus only the sentences relevant to eligibility (co-op,
+degree, graduation, return to school, work authorization, term). The rest of the job ad is dropped, since
+the full text belongs to the employer and is available at `source_url`. Measured accuracy was identical
+before and after the change, so the published numbers still hold.
