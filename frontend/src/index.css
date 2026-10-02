@@ -1,0 +1,202 @@
+/*
+ * Design: one bold element, the age of each posting, shown as heat.
+ * Fresh postings run hot, then cool to grey, because applying early is the whole point.
+ * Everything else stays quiet: a single column, no cards, plain-sentence eligibility.
+ */
+:root {
+  --paper: #f2f4f1;
+  --ink: #18242b;
+  --slate: #56646a;
+  --rule: #d5dbd6;
+  --hot: #d93a12;
+  --warm: #b8730a;
+  --cold: #6f7a7e;
+  --link: #1f3fd1;
+  --blocked: #a1261c;
+  --focus: #1f3fd1;
+
+  --display: 'Bricolage Grotesque Variable', 'Helvetica Neue', Arial, sans-serif;
+  --text: 'Atkinson Hyperlegible Next Variable', 'Helvetica Neue', Arial, sans-serif;
+
+  color-scheme: light;
+  font-family: var(--text);
+  font-size: 100%;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #11181c;
+    --ink: #e6ebe8;
+    --slate: #9aa7ab;
+    --rule: #263238;
+    --hot: #ff6a3d;
+    --warm: #e2a43a;
+    --cold: #66757a;
+    --link: #8fa6ff;
+    --blocked: #ff8f84;
+    --focus: #8fa6ff;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); }
+
+main {
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 4rem;
+}
+
+/* Masthead: the live count is the headline. */
+.brand {
+  margin: 0 0 1.5rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+h1 {
+  margin: 0;
+  max-width: 22ch;
+  font-family: var(--display);
+  font-weight: 650;
+  font-size: clamp(2rem, 5vw + 1rem, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'wdth' 90;
+}
+.lede {
+  margin: 1rem 0 2.5rem;
+  max-width: 60ch;
+  color: var(--slate);
+  font-size: 1.0625rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--ink);
+}
+.search { flex: 1 1 16rem; }
+.controls input[type='search'],
+.controls select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--slate);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+.check input { width: 1.125rem; height: 1.125rem; accent-color: var(--ink); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.notice { margin: 1.5rem 0 0; color: var(--slate); }
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Feed: age column carries the visual weight. */
+.feed { list-style: none; margin: 0; padding: 0; }
+.posting {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 1.25rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.age {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: 'wdth' 80;
+}
+.age.hot { color: var(--hot); }
+.age.warm { color: var(--warm); }
+.age.cold { color: var(--cold); font-weight: 500; }
+
+.body h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.body h2 a { color: var(--ink); text-decoration: none; }
+.body h2 a:hover { color: var(--link); text-decoration: underline; text-underline-offset: 0.15em; }
+.where { margin: 0.25rem 0 0; color: var(--slate); }
+.rules { margin: 0.75rem 0 0; }
+.rules.blocked { color: var(--blocked); }
+.skills { margin: 0.25rem 0 0; color: var(--slate); font-size: 0.9375rem; }
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  color: var(--slate);
+}
+.pager button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.pager button:disabled { opacity: 0.35; cursor: default; }
+
+footer { margin-top: 3rem; color: var(--slate); font-size: 0.875rem; max-width: 60ch; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 34rem) {
+  main { padding-top: 2rem; }
+  .posting { grid-template-columns: 1fr; gap: 0.5rem; }
+  .age { font-size: 1.375rem; }
+  .check { flex-basis: 100%; }
+  .controls select { width: 100%; }
+  .controls label:not(.check) { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+}
