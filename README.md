@@ -24,6 +24,7 @@ is in [DECISIONS.md](DECISIONS.md).
 |---|---|---|
 | Requires a co-op program | 100% (7 of 7) | Hide |
 | Citizenship or sponsorship limits | 100% (4 of 4) | Hide |
+| Security clearance or Controlled Goods | 100% (5 of 5) | Show |
 | Must return to school after | 100% (1 of 1) | Show |
 | Graduation date window | 86% (6 of 7) | Warn |
 | Master's/PhD only | not enough held-out postings yet | Show |

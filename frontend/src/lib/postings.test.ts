@@ -42,7 +42,7 @@ describe('heat', () => {
 describe('eligibilityLines', () => {
   const base: PostingSummary = {
     id: 1, company: 'Acme', title: 'Intern', location: 'Toronto, ON', url: 'https://x.test',
-    category: 'SOFTWARE', coopRequirement: 'UNSPECIFIED', mustReturnToSchool: false, graduateDegreeRequired: false, gradEarliest: null, gradLatest: null, workAuthorization: 'UNSPECIFIED',
+    category: 'SOFTWARE', coopRequirement: 'UNSPECIFIED', mustReturnToSchool: false, graduateDegreeRequired: false, gradEarliest: null, gradLatest: null, workAuthorization: 'UNSPECIFIED', securityClearanceRequired: false,
     termMonths: [], skills: [], firstSeenAt: '2026-10-02T00:00:00Z',
   }
 
@@ -53,6 +53,11 @@ describe('eligibilityLines', () => {
   it('leads with a graduate-only rule', () => {
     expect(eligibilityLines({ ...base, graduateDegreeRequired: true, coopRequirement: 'NOT_REQUIRED' })[0])
       .toBe("For Master's or PhD students.")
+  })
+
+  it('states a security clearance requirement', () => {
+    expect(eligibilityLines({ ...base, securityClearanceRequired: true }))
+      .toEqual(['Needs Controlled Goods registration or a security clearance.'])
   })
 
   it('states work authorization limits', () => {

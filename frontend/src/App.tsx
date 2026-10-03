@@ -284,6 +284,7 @@ const RULE_NAMES: Record<string, string> = {
   coop_required: 'Requires a co-op program',
   graduate_only: "For Master's and PhD students only",
   work_auth: 'Citizenship or sponsorship limits',
+  security_clearance: 'Security clearance or Controlled Goods',
   must_return: 'Must return to school after',
   grad_window: 'Graduation date window',
 }

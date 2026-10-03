@@ -12,12 +12,13 @@ public record PostingSummary(
         Long id, String company, String title, String location, String url,
         RoleCategory category, CoopRequirement coopRequirement, boolean mustReturnToSchool,
         boolean graduateDegreeRequired, YearMonth gradEarliest, YearMonth gradLatest,
-        WorkAuthorization workAuthorization, List<Integer> termMonths, List<String> skills, Instant firstSeenAt) {
+        WorkAuthorization workAuthorization, boolean securityClearanceRequired, List<Integer> termMonths, List<String> skills, Instant firstSeenAt) {
 
     static PostingSummary of(Posting p) {
         return new PostingSummary(p.getId(), p.getCompany(), p.getTitle(), p.getLocation(), p.getUrl(),
                 p.getCategory(), p.getCoopRequirement(), p.isMustReturnToSchool(), p.isGraduateDegreeRequired(),
                 p.getGradEarliest(), p.getGradLatest(), p.getWorkAuthorization(),
+                p.isSecurityClearanceRequired(),
                 p.getTermMonths(), p.getSkills(), p.getFirstSeenAt());
     }
 }

@@ -14,6 +14,7 @@ export interface PostingSummary {
   gradEarliest: string | null
   gradLatest: string | null
   workAuthorization: 'CITIZEN_OR_PR' | 'NO_SPONSORSHIP' | 'UNSPECIFIED'
+  securityClearanceRequired: boolean
   termMonths: number[]
   skills: string[]
   firstSeenAt: string
@@ -89,6 +90,7 @@ export function eligibilityLines(p: PostingSummary): string[] {
   if (p.mustReturnToSchool) lines.push('You must return to school after the term.')
   if (p.workAuthorization === 'CITIZEN_OR_PR') lines.push('Citizens and permanent residents only.')
   if (p.workAuthorization === 'NO_SPONSORSHIP') lines.push('No visa sponsorship.')
+  if (p.securityClearanceRequired) lines.push('Needs Controlled Goods registration or a security clearance.')
   if (p.termMonths.length > 0) lines.push(`${p.termMonths.join(' or ')} month term.`)
   return lines
 }

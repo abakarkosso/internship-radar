@@ -47,6 +47,8 @@ public class Posting {
 
     @Enumerated(EnumType.STRING)
     private WorkAuthorization workAuthorization;
+
+    private boolean securityClearanceRequired;
     private Integer[] termMonths;
     private String[] skills;
     private Instant firstSeenAt;
@@ -80,6 +82,7 @@ public class Posting {
         this.gradEarliest = window == null || window.earliest() == null ? null : window.earliest().atDay(1);
         this.gradLatest = window == null || window.latest() == null ? null : window.latest().atDay(1);
         this.workAuthorization = eligibility.workAuthorization();
+        this.securityClearanceRequired = eligibility.securityClearanceRequired();
         this.termMonths = eligibility.termMonths().toArray(Integer[]::new);
         this.skills = eligibility.skills().toArray(String[]::new);
         this.lastSeenAt = now;
@@ -109,6 +112,7 @@ public class Posting {
     public YearMonth getGradEarliest() { return gradEarliest == null ? null : YearMonth.from(gradEarliest); }
     public YearMonth getGradLatest() { return gradLatest == null ? null : YearMonth.from(gradLatest); }
     public WorkAuthorization getWorkAuthorization() { return workAuthorization; }
+    public boolean isSecurityClearanceRequired() { return securityClearanceRequired; }
     public List<Integer> getTermMonths() { return List.of(termMonths); }
     public List<String> getSkills() { return List.of(skills); }
     public Instant getFirstSeenAt() { return firstSeenAt; }
