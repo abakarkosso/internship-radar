@@ -2,23 +2,23 @@
 
 [![CI](https://github.com/abakarkosso/internship-radar/actions/workflows/ci.yml/badge.svg)](https://github.com/abakarkosso/internship-radar/actions/workflows/ci.yml)
 
-Canadian tech internships the moment they're posted, filtered to the ones you can actually get, with
-published accuracy.
+Canadian tech internships as soon as they're posted, filtered to the ones you can actually get.
 
-Students lose internships two ways: they apply after the first wave of applicants has been
-reviewed, or they spend time on roles they were never eligible for. Internship Radar polls
-company job boards every 15 minutes and reads each description for the rules that decide
-eligibility: whether a school co-op program is required, whether the role is for Master's or
-PhD students, whether you must return to school afterwards, the graduation window, and the
-term length.
+There are two easy ways to waste an internship search: applying a week after the first batch of applicants
+was already reviewed, and applying to roles you were never eligible for. Internship Radar checks company job
+boards every 15 minutes and reads each posting for the parts that decide eligibility: co-op required, grad
+students only, must return to school, graduation window and term length.
 
-## What makes it different
+## What's different about it
 
-Other tools list internships. This one answers *"can I get this one?"*: tell it your graduation date,
-whether you're in a co-op program, your degree and your work status, and it hides roles that rule you
-out and explains the rest. Every eligibility rule is measured on hand-labelled real postings, and the
-numbers are published in the app ("How accurate is this?"). A rule may hide postings only after
-proving 90%+ precision on postings held out from development; see [DECISIONS.md](DECISIONS.md).
+Plenty of tools list internships. I wanted one that answers "can I actually get this one?" You tell it your
+graduation date, whether you're in co-op, your degree and your work status. It hides the roles that rule you
+out and tells you why for the rest.
+
+I hand-labelled real postings to check every rule, and the numbers are in the app under "How accurate is
+this?". A rule is only allowed to hide a posting after it was right 90% of the time or better on postings I
+kept aside and never tuned against. The ones that aren't there yet just show a note instead. The reasoning
+is in [DECISIONS.md](DECISIONS.md).
 
 | Rule | Held-out precision (2026-10-02) | Used to |
 |---|---|---|
