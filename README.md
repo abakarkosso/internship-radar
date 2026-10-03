@@ -107,4 +107,18 @@ minute per client.
 
 Boards to track are listed under `radar.sources` in `backend/src/main/resources/application.yml`.
 
+### Adding a company
+
+Find the company's careers page. If it's hosted on Greenhouse (`boards.greenhouse.io/<board>`), Ashby
+(`jobs.ashbyhq.com/<board>`) or Lever (`jobs.lever.co/<board>`), add the `<board>` part under the matching
+provider:
+
+```yaml
+ashby:
+  - { board: wealthsimple, company: Wealthsimple }
+```
+
+Check it responds before committing, e.g. `curl -s https://api.ashbyhq.com/posting-api/job-board/<board> | head`.
+On the next ingestion cycle the log shows `Ingested ashby:<board>: fetched=… kept=…`.
+
 Design notes and trade-offs are in [DECISIONS.md](DECISIONS.md).

@@ -51,8 +51,19 @@ radar:
       - { board: pinecone, company: Pinecone }
       - { board: perplexity, company: Perplexity }
       - { board: georgian, company: Georgian }
+      - { board: wealthsimple, company: Wealthsimple }
+      - { board: jobber, company: Jobber }
+      - { board: hopper, company: Hopper }
+      - { board: neofinancial, company: Neo Financial }
+      - { board: float, company: Float }
+      - { board: trulioo, company: Trulioo }
+      - { board: procurify, company: Procurify }
+      - { board: thinkific, company: Thinkific }
+      - { board: lightspeedhq, company: Lightspeed }
+      - { board: koho, company: KOHO }
     lever:
       - { board: wattpad, company: Wattpad }
+      - { board: pointclickcare, company: PointClickCare }
 
 management:
   endpoints:
