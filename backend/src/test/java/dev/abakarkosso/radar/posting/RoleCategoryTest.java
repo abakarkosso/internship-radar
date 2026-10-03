@@ -17,6 +17,10 @@ class RoleCategoryTest {
             "Data Engineer Co-op | DATA",
             "Product Management Intern | PRODUCT",
             "Marketing Intern | OTHER",
+            "Research Internship (Winter 2027) | AI_ML",
+            "Applied Research Intern, NLP/ML/GenAI | AI_ML",
+            "UX Research Intern | OTHER",
+            "Market Research Intern | OTHER",
             "Software Engineer Intern, Product | SOFTWARE",
             "Software Engineer Intern, Risk | SOFTWARE",
     })

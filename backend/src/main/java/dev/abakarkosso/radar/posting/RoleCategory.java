@@ -4,7 +4,9 @@ import java.util.regex.Pattern;
 
 public enum RoleCategory {
     HARDWARE("hardware|firmware|embedded|asic|fpga|analog|silicon|pcb|electrical"),
-    AI_ML("\\bai\\b|machine learning|\\bml\\b|deep learning|computer vision|nlp|llm"),
+    // "Research" alone means AI research here, but not UX or market research.
+    AI_ML("\\bai\\b|machine learning|\\bml\\b|deep learning|computer vision|nlp|llm"
+            + "|(?<!ux )(?<!user )(?<!market )(?<!marketing )\\bresearch\\b"),
     DATA("data|analyt|business intelligence|\\bbi\\b"),
     QUANT("quant|trading|actuar"),
     SOFTWARE("software|developer|full.?stack|back.?end|front.?end|web|mobile|devops|platform|cloud|engineer"),
