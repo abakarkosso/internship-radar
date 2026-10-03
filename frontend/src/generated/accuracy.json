@@ -70,6 +70,23 @@
       },
       "use" : "warns"
     },
+    "security_clearance" : {
+      "holdout" : {
+        "precision" : 1.0,
+        "recall" : 1.0,
+        "truePositives" : 5,
+        "falsePositives" : 0,
+        "falseNegatives" : 0
+      },
+      "all" : {
+        "precision" : 1.0,
+        "recall" : 1.0,
+        "truePositives" : 16,
+        "falsePositives" : 0,
+        "falseNegatives" : 0
+      },
+      "use" : "warns"
+    },
     "work_auth" : {
       "holdout" : {
         "precision" : 1.0,

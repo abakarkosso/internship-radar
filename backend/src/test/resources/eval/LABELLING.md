@@ -38,3 +38,9 @@ from 2027-12 to 2027-04 as their earliest date.
 degree, graduation, return to school, work authorization, term). The rest of the job ad is dropped, since
 the full text belongs to the employer and is available at `source_url`. Measured accuracy was identical
 before and after the change, so the published numbers still hold.
+
+## security_clearance (added 2026-10-03)
+
+`true` when the posting requires Canadian Controlled Goods Program registration or clearance, or a government
+security clearance or assessment. A "police clearance certificate" for work-permit holders is a background
+check, not a security clearance, and does not count. The excerpts now also keep these sentences.

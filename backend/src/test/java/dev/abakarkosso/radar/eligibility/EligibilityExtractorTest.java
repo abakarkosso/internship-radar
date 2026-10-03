@@ -203,4 +203,22 @@ class EligibilityExtractorTest {
     void moreWaysOfRefusingSponsorship(String text) {
         assertThat(extractor.extract(text).workAuthorization()).isEqualTo(WorkAuthorization.NO_SPONSORSHIP);
     }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            // CAE
+            "All applicants must be legally entitled to work in Canada and must meet the requirements of the Canadian Controlled Goods Program (CGP). | true",
+            // General Dynamics Mission Systems-Canada
+            "Successful applicants must meet all applicable security requirements, including the ability to obtain and maintain a Canadian government security clearance. | true",
+            // L3Harris
+            "Able to obtain Canadian Controlled Goods Program (CGP) clearance | true",
+            // Pratt & Whitney
+            "The selected candidate will be required to complete a criminal background check and any applicable clearances with respect to the handling and transfer of controlled goods. | true",
+            // A background check for permit holders is not a security clearance
+            "All students with a work permit must provide a police clearance certificate from the countries where they have resided. | false",
+            "Build features with our team. | false",
+    })
+    void detectsSecurityClearanceRequirements(String text, boolean expected) {
+        assertThat(extractor.extract(text).securityClearanceRequired()).isEqualTo(expected);
+    }
 }

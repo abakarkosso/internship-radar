@@ -70,6 +70,11 @@ public class EligibilityExtractor {
             + "|(must|should|will) not (require|need)\\s+(visa\\s+|employer\\s+)?sponsorship"
             + "|(not able|unable) to (provide\\s+|offer\\s+)?(visa\\s+)?sponsor", I);
 
+    // Defence work (CAE, General Dynamics, L3Harris, Pratt & Whitney) needs Controlled Goods registration or a
+    // government security clearance. A "police clearance certificate" for permit holders is a background check.
+    private static final Pattern SECURITY_CLEARANCE = Pattern.compile(
+            "controlled goods|(?<!police )\\bsecurity clearance|security[- ]assessed|(secret|reliability) (clearance|status)", I);
+
     private static final Pattern TERM_MONTHS = Pattern.compile("\\b(4|8|12|16)[- ]?months?\\b", I);
 
     private static final Map<String, Pattern> SKILLS = new LinkedHashMap<>();
@@ -127,6 +132,7 @@ public class EligibilityExtractor {
                 : WorkAuthorization.UNSPECIFIED;
 
         return new Eligibility(coop, MUST_RETURN.matcher(t).find(), graduateOnly, GradWindow.parse(t), auth,
+                SECURITY_CLEARANCE.matcher(t).find(),
                 List.copyOf(months), skills);
     }
 

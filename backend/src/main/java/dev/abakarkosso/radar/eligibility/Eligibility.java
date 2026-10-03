@@ -9,6 +9,7 @@ public record Eligibility(
         boolean graduateDegreeRequired,
         GradWindow gradWindow,
         WorkAuthorization workAuthorization,
+        boolean securityClearanceRequired,
         List<Integer> termMonths,
         List<String> skills) {
 }

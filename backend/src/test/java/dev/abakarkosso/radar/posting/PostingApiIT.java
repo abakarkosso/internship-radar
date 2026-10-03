@@ -140,7 +140,7 @@ class PostingApiIT {
                       GradWindow window, WorkAuthorization auth, Instant seen) {
         Posting p = new Posting("test", id, seen);
         p.refresh(company, title, "Toronto, ON", "https://example.com/" + id, "description",
-                new Eligibility(coop, false, graduateOnly, window, auth, List.of(), List.of("SQL")), seen);
+                new Eligibility(coop, false, graduateOnly, window, auth, false, List.of(), List.of("SQL")), seen);
         repository.save(p);
     }
 }

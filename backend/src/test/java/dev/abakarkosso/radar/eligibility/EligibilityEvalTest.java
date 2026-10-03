@@ -68,6 +68,10 @@ class EligibilityEvalTest {
                     l -> l.get("grad_window").isNull() ? null : new GradWindow(
                             yearMonth(l.get("grad_window").get("earliest")), yearMonth(l.get("grad_window").get("latest"))),
                     Eligibility::gradWindow),
+            // Shows only until it has proven itself on held-out postings.
+            new Rule("security_clearance", false,
+                    l -> l.get("security_clearance").asBoolean() ? true : null,
+                    e -> e.securityClearanceRequired() ? true : null),
             new Rule("work_auth", true,
                     l -> "UNSPECIFIED".equals(l.get("work_auth").asString()) ? null : l.get("work_auth").asString(),
                     e -> e.workAuthorization() == WorkAuthorization.UNSPECIFIED ? null : e.workAuthorization().name()));
