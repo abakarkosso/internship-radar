@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -87,6 +88,19 @@ class PostingApiIT {
         mvc.perform(get("/api/postings").param("workStatus", "CITIZEN_OR_PR")).andExpect(jsonPath("$.totalItems").value(4));
         mvc.perform(get("/api/postings").param("workStatus", "WORK_PERMIT")).andExpect(jsonPath("$.totalItems").value(3));
         mvc.perform(get("/api/postings").param("workStatus", "NEEDS_SPONSORSHIP")).andExpect(jsonPath("$.totalItems").value(2));
+    }
+
+    @Test
+    void postedWithinHoursKeepsOnlyRecentPostings() throws Exception {
+        repository.deleteAll();
+        Instant now = Instant.now();
+        save("8", "Fresh Intern", "New", CoopRequirement.UNSPECIFIED, now.minus(Duration.ofHours(2)));
+        save("9", "Older Intern", "Old", CoopRequirement.UNSPECIFIED, now.minus(Duration.ofHours(60)));
+
+        mvc.perform(get("/api/postings").param("postedWithinHours", "48"))
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].company").value("New"));
+        mvc.perform(get("/api/postings").param("postedWithinHours", "0")).andExpect(status().isBadRequest());
     }
 
     @Test

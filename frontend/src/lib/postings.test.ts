@@ -5,12 +5,12 @@ import {
 
 describe('buildQuery', () => {
   it('omits filters that are not set', () => {
-    expect(buildQuery({ q: '  ', category: '', page: 0 })).toBe('')
+    expect(buildQuery({ q: '  ', category: '', recent: false, page: 0 })).toBe('')
   })
 
   it('includes every filter that is set', () => {
-    expect(buildQuery({ q: ' stripe ', category: 'SOFTWARE', page: 2 }, { excludeCoopRequired: 'true' }))
-      .toBe('q=stripe&category=SOFTWARE&page=2&excludeCoopRequired=true')
+    expect(buildQuery({ q: ' stripe ', category: 'SOFTWARE', recent: true, page: 2 }, { excludeCoopRequired: 'true' }))
+      .toBe('q=stripe&category=SOFTWARE&postedWithinHours=48&page=2&excludeCoopRequired=true')
   })
 })
 
@@ -76,7 +76,7 @@ describe('age', () => {
 
 describe('filtersFromUrl', () => {
   it('round-trips with buildQuery', () => {
-    const f = { q: 'stripe', category: 'DATA' as const, page: 1 }
+    const f = { q: 'stripe', category: 'DATA' as const, recent: true, page: 1 }
     expect(filtersFromUrl(buildQuery(f))).toEqual(f)
   })
 
@@ -84,6 +84,6 @@ describe('filtersFromUrl', () => {
     expect(filtersFromUrl('?page=1.7').page).toBe(1)
     expect(filtersFromUrl('?page=99999999').page).toBe(10_000)
     expect(filtersFromUrl('?category=<script>&page=-4')).toEqual(
-      { q: '', category: '', page: 0 })
+      { q: '', category: '', recent: false, page: 0 })
   })
 })

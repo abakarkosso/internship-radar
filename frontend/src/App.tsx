@@ -63,17 +63,17 @@ export default function App() {
   }, [filters, extra])
 
   // How many roles the profile hides: the same search without the profile. Paging doesn't change it.
-  const { q, category } = filters
+  const { q, category, recent } = filters
   useEffect(() => {
     if (Object.keys(extra).length === 0) { setUnfiltered(null); return }
     const controller = new AbortController()
     const timer = setTimeout(() => {
-      fetchPostings({ q, category, page: 0 }, {}, controller.signal, 1)
+      fetchPostings({ q, category, recent, page: 0 }, {}, controller.signal, 1)
         .then((all) => setUnfiltered(all.totalItems))
         .catch(() => { /* the count is a nicety; the feed still works without it */ })
     }, 200)
     return () => { clearTimeout(timer); controller.abort() }
-  }, [q, category, extra])
+  }, [q, category, recent, extra])
 
   const update = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, page: 0, ...patch }))
   const changeProfile = (patch: Partial<Profile>) => {
@@ -185,6 +185,10 @@ export default function App() {
             <option value="">Every role type</option>
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={filters.recent} onChange={(e) => update({ recent: e.target.checked })} />
+          Posted in the last 48 hours
         </label>
       </section>
 

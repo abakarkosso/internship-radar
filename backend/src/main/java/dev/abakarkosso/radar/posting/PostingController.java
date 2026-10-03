@@ -1,5 +1,8 @@
 package dev.abakarkosso.radar.posting;
 
+import java.time.Clock;
+import java.time.Duration;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +20,11 @@ class PostingController {
     private static final int MAX_PAGE_SIZE = 100;
 
     private final PostingRepository repository;
+    private final Clock clock;
 
-    PostingController(PostingRepository repository) {
+    PostingController(PostingRepository repository, Clock clock) {
         this.repository = repository;
+        this.clock = clock;
     }
 
     @GetMapping
@@ -28,11 +33,13 @@ class PostingController {
                               @RequestParam(defaultValue = "false") boolean excludeCoopRequired,
                               @RequestParam(defaultValue = "false") boolean excludeGraduateOnly,
                               @RequestParam(required = false) WorkStatus workStatus,
+                              @RequestParam(required = false) @Min(1) @Max(720) Integer postedWithinHours,
                               @RequestParam(defaultValue = "0") @Min(0) @Max(10_000) int page,
                               @RequestParam(defaultValue = "25") int size) {
         PageRequest pageable = PageRequest.of(page, Math.clamp(size, 1, MAX_PAGE_SIZE),
                 Sort.by(Sort.Direction.DESC, "firstSeenAt"));
-        return FeedPage.of(repository.findAll(PostingFilters.build(q, category, excludeCoopRequired, excludeGraduateOnly, workStatus), pageable)
+        return FeedPage.of(repository.findAll(PostingFilters.build(q, category, excludeCoopRequired, excludeGraduateOnly, workStatus,
+                postedWithinHours == null ? null : clock.instant().minus(Duration.ofHours(postedWithinHours))), pageable)
                 .map(PostingSummary::of));
     }
 

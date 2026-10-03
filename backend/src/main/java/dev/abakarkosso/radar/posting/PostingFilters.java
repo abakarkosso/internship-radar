@@ -1,5 +1,7 @@
 package dev.abakarkosso.radar.posting;
 
+import java.time.Instant;
+
 import dev.abakarkosso.radar.eligibility.CoopRequirement;
 import dev.abakarkosso.radar.eligibility.WorkAuthorization;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,7 +13,7 @@ final class PostingFilters {
     }
 
     static Specification<Posting> build(String q, RoleCategory category, boolean excludeCoopRequired,
-                                        boolean excludeGraduateOnly, WorkStatus workStatus) {
+                                        boolean excludeGraduateOnly, WorkStatus workStatus, Instant postedAfter) {
         Specification<Posting> spec = (root, query, cb) -> cb.isTrue(root.get("open"));
         if (q != null && !q.isBlank()) {
             String like = "%" + q.toLowerCase().strip() + "%";
@@ -35,6 +37,9 @@ final class PostingFilters {
         } else if (workStatus == WorkStatus.NEEDS_SPONSORSHIP) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("workAuthorization"), WorkAuthorization.UNSPECIFIED));
+        }
+        if (postedAfter != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("firstSeenAt"), postedAfter));
         }
         return spec;
     }

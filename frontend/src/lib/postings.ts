@@ -30,6 +30,8 @@ export interface FeedPage {
 export interface Filters {
   q: string
   category: RoleCategory | ''
+  /** Only postings first seen in the last 48 hours, when applying early matters most. */
+  recent: boolean
   page: number
 }
 
@@ -48,6 +50,7 @@ export function buildQuery(f: Filters, extra: Record<string, string> = {}): stri
   const params = new URLSearchParams()
   if (f.q.trim()) params.set('q', f.q.trim())
   if (f.category) params.set('category', f.category)
+  if (f.recent) params.set('postedWithinHours', '48')
   if (f.page > 0) params.set('page', String(f.page))
   for (const [k, v] of Object.entries(extra)) params.set(k, v)
   return params.toString()
@@ -123,6 +126,7 @@ export function filtersFromUrl(search: string): Filters {
   return {
     q: params.get('q') ?? '',
     category: (category in CATEGORY_LABELS ? category : '') as RoleCategory | '',
+    recent: params.get('postedWithinHours') === '48',
     page: Math.min(10_000, Math.max(0, Math.floor(Number(params.get('page')) || 0))),
   }
 }
