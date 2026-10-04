@@ -48,17 +48,76 @@ is in [DECISIONS.md](DECISIONS.md).
 
 ## Architecture
 
-```
- Greenhouse ─┐
- Ashby ──────┼─▶ HttpBoardSource ─▶ InternshipFilter ─▶ EligibilityExtractor ─▶ PostgreSQL
- Lever ──────┘     (every 15 min)    (student + Canada)   (co-op, degree, term)      │
-                                                                                     ▼
-                         React feed  ◀──────────────  GET /api/postings  ◀──  Specification filters
+Read it left to right. That's the trip a posting takes from a company's job board to your screen.
+The purple box is the part I care about most: a rule only gets to hide postings from you once it has
+proven itself on postings I labelled by hand.
+
+```mermaid
+flowchart LR
+    boards(["Company job boards<br/>Greenhouse · Ashby · Lever"])
+
+    subgraph collect["① Collect, every 15 min"]
+        direction TB
+        fetch["Fetch each board<br/><i>HttpBoardSource</i>"]
+        parse["Turn every board's format into one<br/><i>a parser per board</i>"]
+        filter["Keep student roles in Canada<br/><i>InternshipFilter</i>"]
+        fetch --> parse --> filter
+    end
+
+    subgraph read["② Read the fine print"]
+        extract["Find anything that rules you out<br/><i>EligibilityExtractor</i><br/>co-op · degree · grad date<br/>work status · clearance · term"]
+    end
+
+    subgraph store["③ Store and serve"]
+        direction TB
+        db[("PostgreSQL<br/>when it was first seen,<br/>still open or closed")]
+        api["REST API<br/><i>GET /api/postings</i>"]
+        db --> api
+    end
+
+    subgraph show["④ Show it in the app"]
+        direction TB
+        profile["About you<br/><i>stays in your browser</i>"]
+        feed["Your feed<br/>hides roles you can't get,<br/>says why on the rest"]
+        profile --> feed
+    end
+
+    subgraph gate["Accuracy check, runs on every build"]
+        direction TB
+        labels["137 postings I labelled by hand,<br/>39 kept aside for testing<br/><i>EligibilityEvalTest</i>"]
+        verdict["How often each rule is right<br/>90%+ can hide · 80%+ warns<br/><i>accuracy.json</i>"]
+        labels --> verdict
+    end
+
+    student(["Student"])
+
+    boards --> fetch
+    filter --> extract --> db
+    api --> feed --> student
+    verdict -.-> feed
+
+    classDef ext fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef c1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef c2 fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef c3 fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef c4 fill:#ffe4e6,stroke:#e11d48,color:#881337
+    classDef g fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    class boards,student ext
+    class fetch,parse,filter c1
+    class extract c2
+    class db,api c3
+    class profile,feed c4
+    class labels,verdict g
+    style collect fill:#f8fafc,stroke:#cbd5e1
+    style read fill:#f8fafc,stroke:#cbd5e1
+    style store fill:#f8fafc,stroke:#cbd5e1
+    style show fill:#f8fafc,stroke:#cbd5e1
+    style gate fill:#faf5ff,stroke:#d8b4fe,stroke-dasharray: 4 3
 ```
 
-Each board is fetched and reconciled in its own transaction: new postings are inserted with
-`first_seen_at`, existing ones are refreshed, and postings missing from a successful fetch are
-closed. A board that fails is skipped without closing its postings.
+Each board is handled on its own. New postings are saved with the time they were first seen, existing
+ones are updated, and ones that disappear from the board are marked closed. If a board is down, its
+postings are left alone instead of being closed by mistake.
 
 ## Run it locally
 
