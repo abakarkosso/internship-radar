@@ -71,7 +71,7 @@ export default function App() {
   // How many roles the profile hides: the same search without the profile. Paging doesn't change it.
   const { q, category, recent } = filters
   useEffect(() => {
-    if (Object.keys(extra).length === 0) { setUnfiltered(null); return }
+    if (Object.keys(extra).length === 0) return
     const controller = new AbortController()
     const timer = setTimeout(() => {
       fetchPostings({ q, category, recent, page: 0 }, {}, controller.signal, 1)
@@ -99,7 +99,8 @@ export default function App() {
     fetchPipeline().then(setPipeline).catch(() => setPipeline({ boards: 0, statuses: [] }))
   }
   const summary = describeProfile(profile)
-  const hidden = feed && unfiltered !== null ? Math.max(0, unfiltered - feed.totalItems) : 0
+  // With no profile nothing is hidden, so a count left over from an earlier profile is ignored.
+  const hidden = feed && unfiltered !== null && Object.keys(extra).length > 0 ? Math.max(0, unfiltered - feed.totalItems) : 0
 
   return (
     <main>
