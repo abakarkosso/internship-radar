@@ -4,17 +4,21 @@ import {
   type Accuracy,
   CATEGORY_LABELS,
   type FeedPage,
+  type Pipeline,
   type Filters,
   type PostingSummary,
   type RoleCategory,
   type Stats,
   age,
+  boardName,
   buildQuery,
   eligibilityLines,
+  fetchPipeline,
   fetchPostings,
   fetchStats,
   filtersFromUrl,
   heat,
+  sortBoards,
   timeAgo,
 } from './lib/postings'
 import {
@@ -40,6 +44,8 @@ export default function App() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [error, setError] = useState<string | null>(null)
   const accuracyDialog = useRef<HTMLDialogElement>(null)
+  const pipelineDialog = useRef<HTMLDialogElement>(null)
+  const [pipeline, setPipeline] = useState<Pipeline | null>(null)
   const extra = useMemo(() => profileQuery(profile), [profile])
 
   useEffect(() => {
@@ -86,6 +92,11 @@ export default function App() {
   const goToPage = (page: number) => {
     setFilters((f) => ({ ...f, page }))
     window.scrollTo({ top: 0 })
+  }
+  // Fetched on open, so the numbers are as fresh as the last run.
+  const openPipeline = () => {
+    pipelineDialog.current?.showModal()
+    fetchPipeline().then(setPipeline).catch(() => setPipeline({ boards: 0, statuses: [] }))
   }
   const summary = describeProfile(profile)
   const hidden = feed && unfiltered !== null ? Math.max(0, unfiltered - feed.totalItems) : 0
@@ -231,10 +242,13 @@ export default function App() {
       <footer>
         Eligibility is read automatically from each posting.{' '}
         <button className="link-button" onClick={() => accuracyDialog.current?.showModal()}>How accurate is this?</button>
+        {' · '}
+        <button className="link-button" onClick={openPipeline}>Pipeline health</button>
         {' '}Always confirm on the employer's page before applying.
       </footer>
 
       <AccuracyDialog ref={accuracyDialog} />
+      <PipelineDialog ref={pipelineDialog} pipeline={pipeline} />
     </main>
   )
 }
@@ -322,6 +336,53 @@ function AccuracyDialog({ ref }: { ref: React.Ref<HTMLDialogElement> }) {
       <p className="fine">
         A rule may hide a posting only when it was right at least 90% of the time. When a posting doesn't
         mention a rule, the posting stays visible.
+      </p>
+      <form method="dialog"><button>Close</button></form>
+    </dialog>
+  )
+}
+
+function PipelineDialog({ ref, pipeline }: { ref: React.Ref<HTMLDialogElement>, pipeline: Pipeline | null }) {
+  const boards = pipeline ? sortBoards(pipeline.statuses) : []
+  const failed = boards.filter((b) => !b.ok).length
+  const lastRun = boards.map((b) => b.checkedAt).sort().at(-1)
+  return (
+    <dialog ref={ref} className="accuracy pipeline" aria-labelledby="pipeline-title">
+      <h2 id="pipeline-title">Pipeline health</h2>
+      {!pipeline ? <p>Loading…</p> : boards.length === 0 ? <p>No runs yet. The first one starts a few seconds after the app does.</p> : (
+        <>
+          <p>
+            <strong>{boards.length - failed} of {pipeline.boards} job boards healthy</strong>
+            {lastRun ? `, last checked ${timeAgo(lastRun)}.` : '.'}
+            {failed > 0 && ` ${failed} failed, so their postings were left as they were, never deleted.`}
+          </p>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Board</th><th scope="col">Status</th><th scope="col">Jobs on board</th>
+                  <th scope="col">Student roles in Canada</th><th scope="col">New</th><th scope="col">Closed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {boards.map((b) => (
+                  <tr key={b.source}>
+                    <th scope="row">{boardName(b.source)}</th>
+                    <td className={b.ok ? 'healthy' : 'failed'}>{b.ok ? 'Healthy' : 'Failed'}</td>
+                    <td>{b.ok ? b.fetched : '–'}</td>
+                    <td>{b.ok ? b.kept : '–'}</td>
+                    <td>{b.ok ? b.created : '–'}</td>
+                    <td>{b.ok ? b.closed : '–'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      <p className="fine">
+        Every board is checked every 15 minutes. A board that fails keeps its postings, so an outage never looks
+        like every job disappeared.
       </p>
       <form method="dialog"><button>Close</button></form>
     </dialog>

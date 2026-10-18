@@ -248,6 +248,12 @@ footer { margin-top: 3rem; color: var(--slate); font-size: 0.875rem; max-width: 
   cursor: pointer;
 }
 .fine { color: var(--slate); font-size: 0.875rem; }
+/* Pipeline health dialog: same frame as the accuracy one, wider for the numbers */
+.pipeline { max-width: min(52rem, calc(100vw - 2rem)); }
+.pipeline .table-scroll { overflow-x: auto; }
+.pipeline td { font-variant-numeric: tabular-nums; }
+.pipeline .healthy { color: var(--ink); }
+.pipeline .failed { color: var(--blocked); font-weight: 600; }
 
 .visually-hidden {
   position: absolute;

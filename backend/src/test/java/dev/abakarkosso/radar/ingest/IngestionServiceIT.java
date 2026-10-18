@@ -85,6 +85,25 @@ class IngestionServiceIT {
         assertThat(repository.findBySourceAndExternalId("fake", "1").orElseThrow().isOpen()).isTrue();
     }
 
+    @Test
+    void eachRunRecordsBoardHealth() throws Exception {
+        var board = new FakeBoard(
+                raw("1", "Software Intern", "Toronto, ON", ""),
+                raw("2", "Senior Engineer", "Toronto, ON", ""));
+
+        ingestion.runAllFor(List.of(board));
+        var ok = ingestion.boardStatuses().getFirst();
+        assertThat(ok.ok()).isTrue();
+        assertThat(ok.fetched()).isEqualTo(2);
+        assertThat(ok.kept()).isEqualTo(1);
+
+        board.broken = true;
+        ingestion.runAllFor(List.of(board));
+        var failed = ingestion.boardStatuses().getFirst();
+        assertThat(failed.ok()).isFalse();
+        assertThat(failed.checkedAt()).isAfterOrEqualTo(ok.checkedAt());
+    }
+
     private static RawPosting raw(String id, String title, String location, String description) {
         return new RawPosting("fake", id, "Acme", title, location, "https://acme.test/" + id, description);
     }

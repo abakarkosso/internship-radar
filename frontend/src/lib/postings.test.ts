@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  type PostingSummary, age, buildQuery, eligibilityLines, filtersFromUrl, heat, timeAgo,
+  type BoardStatus, type PostingSummary, age, boardName, buildQuery, eligibilityLines, filtersFromUrl, heat, sortBoards, timeAgo,
 } from './postings'
 
 describe('buildQuery', () => {
@@ -90,5 +90,19 @@ describe('filtersFromUrl', () => {
     expect(filtersFromUrl('?page=99999999').page).toBe(10_000)
     expect(filtersFromUrl('?category=<script>&page=-4')).toEqual(
       { q: '', category: '', recent: false, page: 0 })
+  })
+})
+
+describe('pipeline health', () => {
+  const status = (source: string, ok: boolean, kept: number): BoardStatus =>
+    ({ source, ok, kept, checkedAt: '2026-10-18T21:00:00Z', fetched: kept, created: 0, closed: 0 })
+
+  it('names a board by company slug and platform', () => {
+    expect(boardName('greenhouse:stripe')).toBe('stripe · Greenhouse')
+  })
+
+  it('lists failed boards first, then the ones sending the most student roles', () => {
+    const sorted = sortBoards([status('a:one', true, 1), status('a:two', false, 0), status('a:three', true, 5)])
+    expect(sorted.map((b) => b.source)).toEqual(['a:two', 'a:three', 'a:one'])
   })
 })

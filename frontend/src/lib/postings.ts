@@ -121,6 +121,38 @@ export async function fetchStats(signal?: AbortSignal): Promise<Stats> {
   return res.json()
 }
 
+export interface BoardStatus {
+  source: string
+  checkedAt: string
+  ok: boolean
+  fetched: number
+  kept: number
+  created: number
+  closed: number
+}
+
+export interface Pipeline {
+  boards: number
+  statuses: BoardStatus[]
+}
+
+export async function fetchPipeline(signal?: AbortSignal): Promise<Pipeline> {
+  const res = await fetch('/api/pipeline', { signal })
+  if (!res.ok) throw new Error(`API returned ${res.status}`)
+  return res.json()
+}
+
+/** "greenhouse:stripe" reads as "stripe · Greenhouse". */
+export function boardName(source: string): string {
+  const [platform, board] = source.split(':')
+  return `${board} · ${platform.charAt(0).toUpperCase()}${platform.slice(1)}`
+}
+
+/** Failed boards first, so a problem is the first thing you see. Then the boards sending the most roles. */
+export function sortBoards(statuses: BoardStatus[]): BoardStatus[] {
+  return [...statuses].sort((a, b) => Number(a.ok) - Number(b.ok) || b.kept - a.kept)
+}
+
 /** Filters live in the URL so a search can be bookmarked or shared. */
 export function filtersFromUrl(search: string): Filters {
   const params = new URLSearchParams(search)

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dev.abakarkosso.radar.eligibility.EligibilityExtractor;
 import dev.abakarkosso.radar.posting.Posting;
@@ -29,6 +30,13 @@ public class IngestionService {
 
     public record RunResult(String source, int fetched, int kept, int created, int closed) {
     }
+
+    /** What the last run saw on one board. ok=false means the fetch failed and its postings were left alone. */
+    public record BoardStatus(String source, Instant checkedAt, boolean ok, int fetched, int kept, int created, int closed) {
+    }
+
+    // ponytail: in memory, so it's empty until the first run after a restart; store runs in a table if history matters.
+    private final Map<String, BoardStatus> lastRuns = new ConcurrentHashMap<>();
 
     private final SourceRegistry registry;
     private final PostingRepository repository;
@@ -56,11 +64,23 @@ public class IngestionService {
                 RunResult r = run(source);
                 log.info("Ingested {}: fetched={} kept={} new={} closed={}",
                         r.source(), r.fetched(), r.kept(), r.created(), r.closed());
+                lastRuns.put(r.source(), new BoardStatus(r.source(), clock.instant(), true,
+                        r.fetched(), r.kept(), r.created(), r.closed()));
             } catch (Exception e) {
                 // One broken board must not stop the others, and must not close its postings.
                 log.warn("Skipping {}: {}", source.key(), e.toString());
+                lastRuns.put(source.key(), new BoardStatus(source.key(), clock.instant(), false, 0, 0, 0, 0));
             }
         }
+    }
+
+    /** The latest result for every board that has run since startup, by board key. */
+    public List<BoardStatus> boardStatuses() {
+        return lastRuns.values().stream().sorted(java.util.Comparator.comparing(BoardStatus::source)).toList();
+    }
+
+    public int boardCount() {
+        return registry.sources().size();
     }
 
     /** Closed postings are kept a while so a posting that reappears keeps its first-seen time. */
