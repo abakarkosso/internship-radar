@@ -43,6 +43,10 @@ radar:
       - { board: faire, company: Faire }
       - { board: databricks, company: Databricks }
       - { board: coinbase, company: Coinbase }
+      - { board: pinterest, company: Pinterest }
+      - { board: lyft, company: Lyft }
+      - { board: brave, company: Brave }
+      - { board: block, company: Block }
     ashby:
       - { board: super.com, company: Super }
       - { board: cohere, company: Cohere }
@@ -64,6 +68,8 @@ radar:
     lever:
       - { board: wattpad, company: Wattpad }
       - { board: pointclickcare, company: PointClickCare }
+      - { board: waabi, company: Waabi }
+      - { board: kepler, company: Kepler Communications }
 
 management:
   endpoints:
